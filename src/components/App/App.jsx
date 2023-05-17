@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SearchBar } from 'components/SearchBar/SearchBar';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -8,55 +8,53 @@ import axios from 'axios';
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '34587378-1709a2c174b77a7efdbc7c71b';
 
-export class App extends Component {
-  state = {
-    searchQuery: '',
-    images: [],
-    page: 1,
-    status: '',
-    };
+function App() {
+  const[searchQuery, setSearchQuerry] = useState('');
+  const[images, setImages] = useState([]);
+  const[page, setPage] = useState(1);
+  const[status, setStatus] = useState('');
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchQuery !== this.state.searchQuery) {
-      this.setState({ images: [], page: 1, status: 'pending' }, () => this.getImages());
+  useEffect(() => {
+    if (searchQuery !== '') {
+      setImages([]);
+      setPage(1);
+      setStatus('pending');
+      getImages();
     }
-  }
+    
+  },[searchQuery])
 
-  async getImages() {
+  async function getImages() {
     try {
-      const { page, searchQuery } = this.state;
       const response = await axios.get(
         `${BASE_URL}?key=${API_KEY}&q=${searchQuery}&image_type=photo&per_page=12&page=${page}`
       );
       const newImages = response.data.hits;
-      this.setState(prevState => ({
-        images: [...prevState.images, ...newImages],
-        status: 'resolved',
-      }));
+
+      setImages(prevImg =>  [...prevImg, ...newImages]);
+      setStatus('resolved');
+    
     } catch (error) {
-      this.setState({ status: 'rejected' });
+      setStatus('rejected');
     }
   }
 
-  loadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }), () => {
-      this.getImages();
-    });
+  const loadMore = () => {
+    setPage(prevPage => prevPage+1);
+    getImages();
   };
 
-  handleFormSubmit = searchQuery => {
-    this.setState({ searchQuery });
+  const handleFormSubmit = searchQuery => {
+    setSearchQuerry(searchQuery)
   };
-
-  render() {
-    const { images, status } = this.state;
 
     return (
       <div>
         <ToastContainer />
-        <SearchBar onSubmit={this.handleFormSubmit} />
-        <ImageGallery images={images} status={status} loadMore={this.loadMore} /> {/* Pass the 'status' prop */}
+        <SearchBar onSubmit={handleFormSubmit} />
+        <ImageGallery images={images} status={status} loadMore={loadMore} />
       </div>
     );
   }
-}
+
+  export { App };

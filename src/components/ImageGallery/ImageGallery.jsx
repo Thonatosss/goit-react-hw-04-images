@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState} from 'react';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 import { Triangle } from 'react-loader-spinner';
 import { Modal } from 'components/Modal/Modal';
@@ -8,26 +8,20 @@ import { LoaderWrapper } from 'components/Loader/Loader.styled';
 
 
 
-class ImageGallery extends Component {
-  state = {
-    status: '',
-    showModal: false,
-    currentImg: '',
+function ImageGallery({images, loadMore, status}) {
+  const[showModal, setShowModal] = useState(false);
+  const[currentImg, setCurrentImg] = useState('');
+
+  const getModal = imgUrl => {
+    setShowModal(true);
+    setCurrentImg(imgUrl);
   };
 
-  
-
-  showModal = imgUrl => {
-    this.setState({ showModal: true, currentImg: imgUrl });
+  const hideModal = () => {
+    setShowModal(false);
+    setCurrentImg('')
   };
 
-  hideModal = () => {
-    this.setState({ showModal: false, currentImg: '' });
-  };
-
-  render() {
-    const {showModal, currentImg } = this.state;
-    const {status} = this.props;
 
     if (status === 'pending') {
       return (
@@ -45,22 +39,21 @@ class ImageGallery extends Component {
       return (
         <div>
           <List>
-            {this.props.images.map(image => (
+            {images.map(image => (
               <ImageGalleryItem
                 key={image.id}
                 imgUrl={image.webformatURL}
-                onOpenModal={() => this.showModal(image.largeImageURL)}
+                onOpenModal={() => getModal(image.largeImageURL)}
               />
             ))}
           </List>
-          <LoadMoreButton onClick={this.props.loadMore} />
+          <LoadMoreButton onClick={loadMore} />
           {showModal && (
-            <Modal onCloseModal={this.hideModal} imgSrc={currentImg}></Modal>
+            <Modal onCloseModal={hideModal} imgSrc={currentImg}></Modal>
           )}
         </div>
       );
     }
   }
-}
 
 export { ImageGallery };
