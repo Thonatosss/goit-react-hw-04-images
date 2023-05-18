@@ -41,7 +41,8 @@ function App() {
       setStatus('rejected');
     }
   }
-
+ 
+  
   const loadMore = () => {
     setPage(prevPage => prevPage+1);
     getImages();
