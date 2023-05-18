@@ -22,6 +22,7 @@ function Modal({onCloseModal, imgSrc}) {
     }
   }
 
+
     return createPortal(
       <ModalContainer onClick={handleBackdropClick}>
         <ModalContent>

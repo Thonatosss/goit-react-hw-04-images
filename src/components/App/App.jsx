@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect} from 'react';
 import { SearchBar } from 'components/SearchBar/SearchBar';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,41 +15,42 @@ function App() {
   const[status, setStatus] = useState('');
 
   useEffect(() => {
+   
+    async function getImages() {
+      try {
+        const response = await axios.get(
+          `${BASE_URL}?key=${API_KEY}&q=${searchQuery}&image_type=photo&per_page=12&page=${page}`
+        );
+        const newImages = response.data.hits;
+        if (page === 1) {
+          setImages(newImages);
+        } else {
+          setImages(prevImages => [...prevImages, ...newImages]);
+        }
+        setStatus('resolved');
+      
+      } catch (error) {
+        setStatus('rejected');
+      }
+    }
     if (searchQuery !== '') {
-      setImages([]);
-      setPage(1);
       setStatus('pending');
       getImages();
     }
     
-  },[searchQuery])
+  },[page, searchQuery])
 
-  async function getImages() {
-    try {
-      const response = await axios.get(
-        `${BASE_URL}?key=${API_KEY}&q=${searchQuery}&image_type=photo&per_page=12&page=${page}`
-      );
-      const newImages = response.data.hits;
-      if (page === 1) {
-        setImages(newImages);
-      } else {
-        setImages(prevImages => [...prevImages, ...newImages]);
-      }
-      setStatus('resolved');
-    
-    } catch (error) {
-      setStatus('rejected');
-    }
-  }
- 
   
+ 
+
   const loadMore = () => {
     setPage(prevPage => prevPage+1);
-    getImages();
   };
 
   const handleFormSubmit = searchQuery => {
-    setSearchQuerry(searchQuery)
+    setSearchQuerry(searchQuery);
+    setPage(1);
+    setImages([]);
   };
 
     return (
