@@ -30,8 +30,11 @@ function App() {
         `${BASE_URL}?key=${API_KEY}&q=${searchQuery}&image_type=photo&per_page=12&page=${page}`
       );
       const newImages = response.data.hits;
-
-      setImages(prevImg =>  [...prevImg, ...newImages]);
+      if (page === 1) {
+        setImages(newImages);
+      } else {
+        setImages(prevImages => [...prevImages, ...newImages]);
+      }
       setStatus('resolved');
     
     } catch (error) {
